@@ -1,0 +1,46 @@
+{
+  "locale":"en",
+  "width":"25",
+  "height":"25",
+  "layouts": [
+    { "name":"lowecase", "keys":[["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
+                  ["a", "s", "d", "f", "g", "h", "j", "k", "l","back"],
+                  ["Caps", "z", "x", "c", "v", "b", "n", "m",",","return"],
+                  ["123", ".", "space", "@", ";"]], 
+                  
+                  "modifiers": [{ "modkey":"Caps", "switchto":"uppercase" },
+                  { "modkey":"123", "switchto":"numerical" },
+                  
+                  { "keywidth":"space", "width":"100" },
+                  { "keywidth":"return", "width":"100" },
+                  { "keywidth":"Caps", "width":"100" }
+                  ]},
+                  
+    { "name":"uppercase", "keys":[["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+                  ["A", "S", "D", "F", "G", "H", "J", "K", "L","back"],
+                  ["Caps", "Z", "X", "C", "V", "B", "N", "M",",", "return"],
+                  ["123", ".", "space", "@", ";"]],
+                  
+                  "modifiers": [{ "modkey":"Caps", "switchto":"lowercase" },
+                  { "modkey":"123", "switchto":"numerical" }]
+    },
+                  
+    { "name":"numerical", "keys":[["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
+                   ["-", "/", ":", ";", "(", ")", "€", "&", "@", "back"],
+                   ["#+=", ".", ",", "?", "!", "'", "+","\\","%","return"],
+                   ["ABC", ",", "space", ".", "\""]],
+                   
+                  "modifiers": [{ "modkey":"#+=", "switchto":"symbols" },
+                  { "modkey":"ABC", "switchto":"lowecase" }]
+    },
+                   
+    { "name":"symbols", "keys":[[ "[", "]", "{", "}", "#", "%", "^", "*", "+", "="],
+                   ["_", "\\", "|", "~", "<", ">", "=","$", "@", "back"],
+                   ["123", ".", ",", "?", "!", "'","/",":",";", "return"],
+                   ["ABC", ",", "space", ".", "\""]],
+                  
+                  "modifiers": [{ "modkey":"123", "switchto":"numerical" },
+                  { "modkey":"ABC", "switchto":"lowecase" }]
+    }
+  ]
+ }
