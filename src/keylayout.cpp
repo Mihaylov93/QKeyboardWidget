@@ -15,7 +15,7 @@ KeyLayout::KeyLayout(QString json, QObject *parent) : QObject(parent)
     if (Q_UNLIKELY(error.error != 0))
         qDebug() << error.errorString();
 
-    this->init();
+    this->initLayouts();
 }
 
 KeyLayout::KeyLayout(QFile *file, QObject *parent) : QObject(parent)
@@ -35,7 +35,7 @@ KeyLayout::KeyLayout(QFile *file, QObject *parent) : QObject(parent)
     if (Q_UNLIKELY(error.error != 0))
         qDebug() << error.errorString();
 
-    this->init();
+    this->initLayouts();
 }
 
 KeyLayout::~KeyLayout()
@@ -54,9 +54,9 @@ const QVector<QVector< QVector<Key>>>& KeyLayout::getLayouts()
     return layouts;
 }
 
-QVector< QVector<Key>> KeyLayout::getRows(char layout)
+QVector< QVector<Key>>* KeyLayout::getRows(char layout)
 {
-    return layouts[layout];
+    return &layouts[layout];
 }
 
 QJsonValue KeyLayout::getQJsonValue(QJsonObject obj, QString key, Type type)
@@ -74,12 +74,10 @@ QJsonValue KeyLayout::getQJsonValue(QJsonObject obj, QString key, Type type)
         default:
             return value;
     }
-    
-    return value;
-        
+    return value;     
 }
 
-void KeyLayout::init()
+void KeyLayout::initLayouts()
 {
 
     mLocale = jsonObject.value(QString("locale")).toString();
@@ -95,68 +93,65 @@ void KeyLayout::init()
         
         QJsonValue kbdsVal = getQJsonValue(jsonObj, "keys", Type::Array);
 
+        this->layouts.append(this->initRows(kbdsVal.toArray()));
 
-
+        //initialize keys modifiers
+        initModKeys(getQJsonValue(jsonObj, "modifiers", Type::Array).toArray());
 
     }
-    this->layouts.append(this->initLayouts(value.toArray()));
-
 }
 
-QVector<QVector<Key>> KeyLayout::initLayouts(const QJsonArray &keysArray)
+void KeyLayout::initModKeys(const QJsonArray &modKeysArray)
 {
 
-    //QVector<Key> keys;
-    QVector<QVector<Key>> result;
+    foreach (const QJsonValue & modType, modKeysArray ){
+        QJsonObject jsonObj = modType.toObject();
 
-    foreach (const QJsonValue & val, keysArray) {
-        result = QVector<QVector<Key>>();
-        //qDebug() << val.toObject().value("keys");
-        QJsonArray array = val.toObject().value("keys").toArray();
-        QVector<QVector<Key>> rows;
-        for (auto it = array.begin(); it != array.end(); ++it) {
-            //qDebug() << "ROWS: " << it->toArray();
-            QJsonArray jsRows = it->toArray();
+        modKeys.insert(getQJsonValue(modType.toObject(), "modkey",Type::String).toString(),
+                       getQJsonValue(modType.toObject(), "switchto",Type::String).toString());
+    }
+}
 
-            QVector<Key> keys;
-            for(auto it = jsRows.begin(); it != jsRows.end(); ++it) {
-                qDebug() << "Items: " << it->toString();
-                //QJsonArray rows = it->toArray();
-                keys.append(Key(it->toString(),mWidth,mHeight));
+QVector<QVector<Key>> KeyLayout::initRows(const QJsonArray &keysArray)
+{
+    int x = 0;
+    int y = 0;
+    Key* previouskey = nullptr;
+    QVector<QVector<Key>> rows;
+    foreach (const QJsonValue & rowKeys, keysArray) {
+        qDebug() << "RowKeys: " << rowKeys.toArray();
+        QJsonArray array = rowKeys.toArray();
+
+
+        QVector<Key> keys;
+        for(auto it = array.begin(); it != array.end(); ++it) {
+            qDebug() << "Items: " << it->toString();
+
+            if (x>0 && previouskey!=nullptr){
+                keys.append(Key(it->toString(),mWidth,mHeight,previouskey->getX()+previouskey->getWidth(),y*26));
+            } else{
+                keys.append(Key(it->toString(),mWidth,mHeight,0,y*26));
             }
-            rows.append(keys);
+
+            x++;
+            previouskey = &keys.last();
         }
-        qDebug() << "count: " << array.count();
-        result = rows;
+        rows.append(keys);
+        y++;
+        x=0;
+        previouskey = nullptr;
+        //qDebug() << "count: " << array.count();
     }
-
-
-    return result;
+    return rows;
 }
 
-
-
-
-
-/*int KeyLayout::layoutsCount()
+bool KeyLayout::isModifier(const QString &keyText)
 {
-   // return layouts->size();
+    return modKeys.contains(keyText);
 }
 
-
-QVector<int> KeyLayout::getRowKeyMap()
+char KeyLayout::getLayoutIdxFromKey(const QString &keyText)
 {
-    //return *rowKeyMap;
+    // We will never have >2147483647 layouts so no need to alloc memory for nothing
+    return static_cast<char>(layoutNames.indexOf(modKeys.value(keyText)));
 }
-
-QVector<QString> KeyLayout::getLayoutAt(int n)
-{
-    //return layouts->at(n);
-}
-
-const QVector<QVector<QString> > *KeyLayout::getLayouts()
-{
-
-    return const_cast<QVector<QVector<QString> >*>(layouts);
-}
-*/

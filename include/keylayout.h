@@ -19,30 +19,36 @@ public:
 
     explicit KeyLayout(QString json,QObject *parent = nullptr);
     explicit KeyLayout(QFile *file,QObject *parent = nullptr);
+    KeyLayout(const KeyLayout&) = delete;
     ~KeyLayout();
+
     QString getLocale();
-    int layoutsCount();
 
     const QVector<QVector<QVector<Key>>>& getLayouts();
-    QVector< QVector<Key>> getRows(char layout);
-
+    QVector< QVector<Key>> *getRows(char layout);
+    bool isModifier(const QString &keyText);
+    char getLayoutIdxFromKey(const QString &keyText);
 
 private:
+
     enum Type { Null, String, Array };
     
     QString mLocale;
     int mWidth = 0;
     int mHeight = 0;
     QJsonObject jsonObject;
+
+    void initLayouts();
+    void initModKeys(const QJsonArray &modKeysArray);
+
     QJsonValue getQJsonValue(QJsonObject obj, QString key,Type type = Type::Null);
-
     QVector<QString> layoutNames;
-    QVector< QVector< QVector< Key > > > layouts;
+    QVector<QVector<QVector<Key>>> layouts;
+    QVector<QVector<Key>> initRows(const QJsonArray &keysArray);
+
+    QMap<QString,QString> modKeys;
 
 
-
-    void init();
-    QVector<QVector<Key>> initLayouts(const QJsonArray &keysArray);
 };
 
 #endif // KEYLAYOUT_H
