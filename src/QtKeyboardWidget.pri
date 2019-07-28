@@ -12,9 +12,9 @@ greaterThan(QT_MAJOR_VERSION, 4){
     QMAKE_CXXFLAGS += -std=c++11
 }
 
-TARGET = qkeyboardwidget
-TEMPLATE = lib
-CONFIG+= shared
+#TARGET = qkeyboardwidget
+#TEMPLATE = lib
+#CONFIG+= shared
 
 DEFINES += QT_DEPRECATED_WARNINGS
 

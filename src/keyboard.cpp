@@ -2,8 +2,9 @@
 #include <QMouseEvent>
 #include <QDebug>
 
-#include "keyboard.h"
+#include "key.h"
 #include "keylayout.h"
+#include "keyboard.h"
 
 Keyboard::Keyboard(KeyLayout &kl, InputMode mode, QWidget *parent) : QWidget(parent)
 {
@@ -32,6 +33,25 @@ Keyboard::Keyboard(KeyLayout &kl, InputMode mode, QWidget *parent) : QWidget(par
         default:
             throw std::logic_error{"Undefined mode, please select a valid mode"};
     }
+}
+
+Key *Keyboard::findKeyFromString(const QString &name, const int &layout)
+{
+    QVector<QVector<Key>> *r = mKeylayout->getRows(static_cast<char>(layout));
+
+    Key *result = nullptr;
+    for (auto &rKeys : *r) {
+        for (auto &key : rKeys) {
+
+            if (QString::compare(key.getText(), name, Qt::CaseSensitive))
+                continue;
+            else {
+                result = &key;
+                break;
+            }
+        }
+    }
+    return result;
 }
 
 void Keyboard::mousePressEvent(QMouseEvent *e)
@@ -130,12 +150,10 @@ void Keyboard::keyReleaseEvent(QKeyEvent *event)
 }
 Key *Keyboard::findKey(QPoint p)
 {
-
-    // for (auto keyArrayIt = rows->begin();keyArrayIt != rows->end();++keyArrayIt){
     for (auto &keyArrayIt : *rows) {
         for (auto it = keyArrayIt.begin(); it != keyArrayIt.end(); ++it) {
-            qDebug() << it->getRect();
-            qDebug() << it->getX() << " , " << it->getY();
+            // qDebug() << it->getRect();
+            // qDebug() << it->getX() << " , " << it->getY();
             ;
             if (it->getRect().contains(p)) {
                 qDebug() << "key found";
@@ -184,9 +202,7 @@ void Keyboard::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
 
-    // for (auto it = rows->begin();it != rows->end(); ++it) {
     for (auto &it : *rows) {
-        // for (auto key = it.begin(); key != it.end(); ++key) {
         for (auto &key : it) {
             // qDebug() << "Keyboard::Draw Drawing key << " << key->getText() << "at: "<< key->getRect();
             key.draw(&painter, style());

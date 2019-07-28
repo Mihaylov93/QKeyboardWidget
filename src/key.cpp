@@ -1,6 +1,6 @@
 #include "key.h"
 
-#include <utility>
+//#include <utility>
 
 Key::Key() : mText(QString())
 {
@@ -13,14 +13,14 @@ Key::Key(QString t, QObject *parent) : QObject(parent), mText(std::move(t))    /
 }
 
 Key::Key(QString t, int w, int h, int xPos, int yPos, QObject *parent) :
-    QObject(parent), mHeight(h), mXPos(xPos), mYPos(yPos), mText(std::move(t))
+    QObject(parent), mWidth(w), mHeight(h), mXPos(xPos), mYPos(yPos), mText(std::move(t))
 {
     mWidth = mText.length() * 5 + w;
 }
 
 Key::Key(Key &&other) noexcept :
     mWidth(other.mWidth), mHeight(other.mHeight), mXPos(other.mXPos), mYPos(other.mYPos), mText(QString(other.mText)),
-    isPressed(other.isPressed), isCurrent(other.isCurrent)
+    isPressed(other.isPressed), isCurrent(other.isCurrent), iconFilename(other.iconFilename)
 {
     // Leave it in a default state
     other.setParent(nullptr);
@@ -31,11 +31,12 @@ Key::Key(Key &&other) noexcept :
     other.mText = QString();
     other.isPressed = false;
     other.isCurrent = false;
+    other.iconFilename = "";
 }
 
 Key::Key(const Key &other) :
     QObject(other.parent()), mWidth(other.mWidth), mHeight(other.mHeight), mXPos(other.mXPos), mYPos(other.mYPos),
-    mText(other.mText), isPressed(other.isPressed), isCurrent(other.isCurrent)
+    mText(other.mText), isPressed(other.isPressed), isCurrent(other.isCurrent), iconFilename(other.iconFilename)
 {
 }
 
@@ -49,7 +50,7 @@ Key &Key::operator=(const Key &other)
     mText = other.mText;
     isPressed = other.isPressed;
     isCurrent = other.isCurrent;
-
+    iconFilename = other.iconFilename;
     return *this;
 }
 
@@ -64,7 +65,7 @@ Key &Key::operator=(Key &&other) noexcept
         mText = other.mText;
         isPressed = other.isPressed;
         isCurrent = other.isCurrent;
-
+        iconFilename = other.iconFilename;
         other.setParent(nullptr);
     }
 
@@ -149,7 +150,7 @@ void Key::draw(QPainter *p, QStyle *style)
 
     if (iconFilename != "") {
         btnStyle.icon = QIcon(iconFilename);
-        btnStyle.iconSize = QSize(16, 16);
+        btnStyle.iconSize = QSize(mWidth - 2, mHeight - 2);
     } else
         btnStyle.text = mText;
 

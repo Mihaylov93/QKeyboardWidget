@@ -43,6 +43,8 @@ class KeyLayout : public QObject {
     QVector<QVector<Key>> initRows(const QJsonArray &keysArray);
 
     QMap<QString, QString> modKeys;
+    QMap<QString, int> widthKeys;
+    QMap<QString, QString> iconKeys;
 };
 
 #endif    // KEYLAYOUT_H

@@ -83,10 +83,11 @@ void KeyLayout::initLayouts()
 
         QJsonValue kbdsVal = getQJsonValue(jsonObj, "keys", Type::Array);
 
-        this->layouts.append(this->initRows(kbdsVal.toArray()));
-
         // initialize keys modifiers
         initModKeys(getQJsonValue(jsonObj, "modifiers", Type::Array).toArray());
+
+        // initialize rows
+        this->layouts.append(this->initRows(kbdsVal.toArray()));
     }
 }
 
@@ -95,9 +96,21 @@ void KeyLayout::initModKeys(const QJsonArray &modKeysArray)
 
     foreach (const QJsonValue &modType, modKeysArray) {
         QJsonObject jsonObj = modType.toObject();
+        qDebug() << jsonObj.contains("modkey") << " " << jsonObj.contains("rewidth");
+        if (jsonObj.contains("modkey")) {
+            modKeys.insert(getQJsonValue(modType.toObject(), "modkey", Type::String).toString(),
+                           getQJsonValue(modType.toObject(), "switchto", Type::String).toString());
+        }
 
-        modKeys.insert(getQJsonValue(modType.toObject(), "modkey", Type::String).toString(),
-                       getQJsonValue(modType.toObject(), "switchto", Type::String).toString());
+        if (jsonObj.contains("setwidth")) {
+            widthKeys.insert(getQJsonValue(modType.toObject(), "setwidth", Type::String).toString(),
+                             (getQJsonValue(modType.toObject(), "width", Type::String).toString()).toInt());
+        }
+
+        if (jsonObj.contains("seticon")) {
+            iconKeys.insert(getQJsonValue(modType.toObject(), "seticon", Type::String).toString(),
+                            getQJsonValue(modType.toObject(), "icon", Type::String).toString());
+        }
     }
 }
 
@@ -113,19 +126,28 @@ QVector<QVector<Key>> KeyLayout::initRows(const QJsonArray &keysArray)
 
         QVector<Key> keys;
         for (auto it = array.begin(); it != array.end(); ++it) {
-            qDebug() << "Items: " << it->toString();
-
+            // qDebug() << "Items: " << it->toString();
+            QString text = it->toString();
             if (x > 0 && previouskey != nullptr) {
-                keys.append(
-                    Key(it->toString(), mWidth, mHeight, previouskey->getX() + previouskey->getWidth(), y * 26));
+                if (widthKeys.contains(text)) {
+                    keys.append(Key(text, widthKeys.value(text), mHeight, previouskey->getX() + previouskey->getWidth(),
+                                    y * 26));
+                } else {
+                    keys.append(Key(text, mWidth, mHeight, previouskey->getX() + previouskey->getWidth(), y * 26));
+                }
+
             } else {
-                keys.append(Key(it->toString(), mWidth, mHeight, 0, y * 26));
+                keys.append(Key(it->toString(), mWidth, mHeight, 0, y * 26));    // TODO: change the hardcoded 26
             }
 
+            if (iconKeys.contains(text)) {
+                keys.last().setIconFile(iconKeys.value(text));
+            }
             x++;
             previouskey = &keys.last();
         }
         rows.append(keys);
+
         y++;
         x = 0;
         previouskey = nullptr;

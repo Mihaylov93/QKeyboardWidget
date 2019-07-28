@@ -5,16 +5,18 @@
 #include <QLabel>
 #include <QVector>
 #include <QString>
-#include "key.h"
 
 enum InputMode { Undefined, Mouse, Keypad, Mixed };
 
 class KeyLayout;
+class Key;
 class Keyboard : public QWidget {
     Q_OBJECT
 
     public:
     Keyboard(KeyLayout &kl, InputMode mode = InputMode::Undefined, QWidget *parent = nullptr);
+    Key *findKeyFromString(const QString &name, const int &layout);
+
     signals:
     void keyPressed(QString t);
     void backspacePressed();
@@ -29,6 +31,7 @@ class Keyboard : public QWidget {
     void keyReleaseEvent(QKeyEvent *event) override;
 
     Key *findKey(QPoint p);
+
     void setKeyPressed(Key *k);
     void setKeyCurrent(int row = -1, int col = -1);
 

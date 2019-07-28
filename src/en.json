@@ -9,7 +9,11 @@
                   ["123", ".", "space", "@", ";"]], 
                   
                   "modifiers": [{ "modkey":"Caps", "switchto":"uppercase" },
-                  { "modkey":"123", "switchto":"numerical" }
+                  { "modkey":"123", "switchto":"numerical" },
+                  { "setwidth":"space", "width":"131" },
+                  { "seticon":"back", "icon":":/icons/backspace.png" },
+                  { "seticon":"Caps", "icon":":/icons/caps.png" },
+                  { "seticon":"return", "icon":":/icons/enter.png" }
                   ]},
                   
     { "name":"uppercase", "keys":[["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
@@ -18,7 +22,9 @@
                   ["123", ".", "space", "@", ";"]],
                   
                   "modifiers": [{ "modkey":"Lowr", "switchto":"lowercase" },
-                  { "modkey":"123", "switchto":"numerical" }]
+                  { "modkey":"123", "switchto":"numerical" },
+                  { "seticon":"Lowr", "icon":":/icons/lows.png" }
+                  ]
     },
                   
     { "name":"numerical", "keys":[["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],

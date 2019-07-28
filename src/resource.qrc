@@ -1,1 +1,9 @@
-<RCC/>
+<RCC>
+    <qresource prefix="/">
+        <file>en.json</file>
+        <file>icons/backspace.png</file>
+        <file>icons/caps.png</file>
+        <file>icons/enter.png</file>
+        <file>icons/lows.png</file>
+    </qresource>
+</RCC>

@@ -23,8 +23,6 @@ class Key : public QObject {
     Key &operator=(const Key &other);
     Key &operator=(Key &&other) noexcept;
 
-    QString iconFilename;
-
     void setX(int);
     void setY(int);
     void setWidth(int w);
@@ -50,6 +48,7 @@ class Key : public QObject {
     QString mText;
     bool isPressed = false;
     bool isCurrent = false;
+    QString iconFilename;
 };
 
 #endif    // KEY_H
