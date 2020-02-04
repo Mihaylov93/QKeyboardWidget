@@ -52,3 +52,5 @@ MakeFile
 /Example/UseWidget/release/*
 /Example/build-UseWidget-*
 
+/test/build-QtKeyboardWidgetTest-*
+/Example/UseWidget/.qmake.stash

@@ -1,159 +1,57 @@
 #include "key.h"
 
-//#include <utility>
-
-Key::Key() : mText(QString())
+Key::Key(const QString &iText, const QString &iIcon, const int &iMinWidth, const int &iMinHeight, QWidget *iParent) :
+    QPushButton(iParent)
 {
-}
+    this->setText(iText);
+    this->setObjectName(iText);
 
-Key::Key(QString t, QObject *parent) : QObject(parent), mText(std::move(t))    // TODO: REMOVE
-{
-    mWidth = mText.length() * 5 + 20;
-    mHeight = 25;
-}
-
-Key::Key(QString t, int w, int h, int xPos, int yPos, QObject *parent) :
-    QObject(parent), mWidth(w), mHeight(h), mXPos(xPos), mYPos(yPos), mText(std::move(t))
-{
-    mWidth = mText.length() * 5 + w;
-}
-
-Key::Key(Key &&other) noexcept :
-    mWidth(other.mWidth), mHeight(other.mHeight), mXPos(other.mXPos), mYPos(other.mYPos), mText(QString(other.mText)),
-    isPressed(other.isPressed), isCurrent(other.isCurrent), iconFilename(other.iconFilename)
-{
-    // Leave it in a default state
-    other.setParent(nullptr);
-    other.mWidth = 25;
-    other.mHeight = 25;
-    other.mXPos = 0;
-    other.mYPos = 0;
-    other.mText = QString();
-    other.isPressed = false;
-    other.isCurrent = false;
-    other.iconFilename = "";
-}
-
-Key::Key(const Key &other) :
-    QObject(other.parent()), mWidth(other.mWidth), mHeight(other.mHeight), mXPos(other.mXPos), mYPos(other.mYPos),
-    mText(other.mText), isPressed(other.isPressed), isCurrent(other.isCurrent), iconFilename(other.iconFilename)
-{
-}
-
-Key &Key::operator=(const Key &other)
-{
-    this->setParent(other.parent());
-    mWidth = other.mWidth;
-    mHeight = other.mHeight;
-    mXPos = other.mXPos;
-    mYPos = other.mYPos;
-    mText = other.mText;
-    isPressed = other.isPressed;
-    isCurrent = other.isCurrent;
-    iconFilename = other.iconFilename;
-    return *this;
-}
-
-Key &Key::operator=(Key &&other) noexcept
-{
-    if (this != &other) {
-        this->setParent(other.parent());
-        mWidth = other.mWidth;
-        mHeight = other.mHeight;
-        mXPos = other.mXPos;
-        mYPos = other.mYPos;
-        mText = other.mText;
-        isPressed = other.isPressed;
-        isCurrent = other.isCurrent;
-        iconFilename = other.iconFilename;
-        other.setParent(nullptr);
+    if (iIcon.size()) {
+        this->setIcon(QIcon(QPixmap(iIcon)));
     }
 
-    return *this;
+    this->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+    this->setMinimumSize(iMinWidth, iMinHeight);
+    this->resize(iMinWidth, iMinHeight);
+    QObject::connect(this, &QPushButton::clicked, this, &Key::on_clicked);
 }
 
-QRect Key::getRect()
+const bool &Key::isPressed() const
 {
-    return {QPoint(mXPos, mYPos), QSize(mWidth, mHeight)};
+    return _isPressed;
 }
 
-void Key::setWidth(int w)
+void Key::setPressed(const bool &iState)
 {
-    mWidth = w;
+    _isPressed = iState;
 }
 
-void Key::setHeight(int h)
+const bool &Key::isCurrent() const
 {
-    mHeight = h;
+    return _isCurrent;
 }
 
-int Key::getWidth()
+void Key::setCurrent(const bool &iState)
 {
-    return mWidth;
+    _isCurrent = iState;
 }
 
-int Key::getHeight()
+int Key::getWidth() const
 {
-    return mHeight;
+    return this->QWidget::width();
 }
 
-int Key::getX()
+void Key::setWidth(const int &iWidth)
 {
-    return mXPos;
+    this->resize(iWidth, this->QWidget::height());
 }
 
-int Key::getY()
+int Key::getHeight() const
 {
-    return mYPos;
+    return this->QWidget::height();
 }
 
-QString Key::getText()
+void Key::setHeight(const int &iHeight)
 {
-    return mText;
-}
-
-void Key::setX(int x)
-{
-    mXPos = x;
-}
-
-void Key::setY(int y)
-{
-    mYPos = y;
-}
-
-void Key::setIconFile(QString i)
-{
-    iconFilename = std::move(i);
-}
-
-void Key::setPressed(bool b)
-{
-    isPressed = b;
-}
-
-void Key::setCurrent(bool b)
-{
-    isCurrent = b;
-}
-
-void Key::draw(QPainter *p, QStyle *style)
-{
-
-    QStyleOptionButton btnStyle;
-
-    // isPressed ? btnStyle.state = btnStyle.state = QStyle::State_Enabled : btnStyle.state = QStyle::State_Active;
-    isCurrent ? btnStyle.state = btnStyle.state |= QStyle::State_Enabled | QStyle::State_On
-              : btnStyle.state = QStyle::State_Active;
-
-    btnStyle.rect = QRect(QPoint(mXPos, mYPos), QSize(mWidth, mHeight));
-
-    if (iconFilename != "") {
-        btnStyle.icon = QIcon(iconFilename);
-        btnStyle.iconSize = QSize(mWidth - 2, mHeight - 2);
-    } else
-        btnStyle.text = mText;
-
-    // style->drawControl(QStyle::CE_PushButton, &btnStyle, p,this);
-    style->drawControl(QStyle::CE_PushButton, &btnStyle, p);
+    this->resize(this->QWidget::width(), iHeight);
 }

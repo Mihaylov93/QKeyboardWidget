@@ -1,48 +1,54 @@
 {
   "locale":"en",
-  "width":"25",
-  "height":"25",
   "layouts": [
-    { "name":"lowercase", "keys":[["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
-                  ["a", "s", "d", "f", "g", "h", "j", "k", "l","back"],
-                  ["Caps", "z", "x", "c", "v", "b", "n", "m",",","return"],
-                  ["123", ".", "space", "@", ";"]], 
-                  
-                  "modifiers": [{ "modkey":"Caps", "switchto":"uppercase" },
-                  { "modkey":"123", "switchto":"numerical" },
-                  { "setwidth":"space", "width":"131" },
-                  { "seticon":"back", "icon":":/icons/backspace.png" },
-                  { "seticon":"Caps", "icon":":/icons/caps.png" },
-                  { "seticon":"return", "icon":":/icons/enter.png" }
-                  ]},
-                  
-    { "name":"uppercase", "keys":[["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+    { "name":"lowercase",
+        "keys":[["q", "w", "e", "r", "t", "y", "u", "i", "o", "p","?"],
+               ["a", "s", "d", "f", "g", "h", "j", "k", "l","back"],
+               ["Caps", "z", "x", "c", "v", "b", "n", "m","return"],
+               ["123", ".", "space", "@",",",";"]],
+
+
+        "modifiers": [{ "keyspan":"back", "span":"2" },
+                     { "keyspan":"Caps", "span":"2" },
+                     { "keyspan":"return", "span":"2" },
+                     { "keyspan":"123", "span":"2" },
+                     { "keyspan":"space", "span":"4" }]
+    },
+
+    { "name":"uppercase",
+        "keys":[["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "¿"],
                   ["A", "S", "D", "F", "G", "H", "J", "K", "L","back"],
-                  ["Lowr", "Z", "X", "C", "V", "B", "N", "M",",", "return"],
-                  ["123", ".", "space", "@", ";"]],
-                  
-                  "modifiers": [{ "modkey":"Lowr", "switchto":"lowercase" },
-                  { "modkey":"123", "switchto":"numerical" },
-                  { "seticon":"Lowr", "icon":":/icons/lows.png" }
-                  ]
+                  ["Lowr", "Z", "X", "C", "V", "B", "N", "M", "return"],
+                  ["123", ".", "space", "@",",",";"]],
+
+        "modifiers": [{ "keyspan":"back", "span":"2" },
+                     { "keyspan":"Lowr", "span":"2" },
+                     { "keyspan":"return", "span":"2" },
+                     { "keyspan":"123", "span":"2" },
+                     { "keyspan":"space", "span":"4" }]
     },
-                  
-    { "name":"numerical", "keys":[["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
+
+    { "name":"numerical",
+        "keys":[["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
                    ["-", "/", ":", ";", "(", ")", "€", "&", "@", "back"],
-                   ["#+=", ".", ",", "?", "!", "'", "+","\\","%","return"],
-                   ["ABC", ",", "space", ".", "\""]],
-                   
-                  "modifiers": [{ "modkey":"#+=", "switchto":"symbols" },
-                  { "modkey":"ABC", "switchto":"lowercase" }]
+                   ["#+=", ".", ",", "?", "!", "'", "+","\\","return"],
+                   ["ABC", ",", "space", ".", "\"","%"]],
+
+        "modifiers": [{ "keyspan":"ABC", "span":"2" },
+                     { "keyspan":"#+=", "span":"2" },
+                     { "keyspan":"return", "span":"2" },
+                     { "keyspan":"back", "span":"2" },
+                     { "keyspan":"space", "span":"4" }]
+
+
     },
-                   
-    { "name":"symbols", "keys":[[ "[", "]", "{", "}", "#", "%", "^", "*", "+", "="],
+
+    { "name":"symbols",
+            "keys":[[ "[", "]", "{", "}", "#", "%", "^", "*", "+", "="],
                    ["_", "\\", "|", "~", "<", ">", "=","$", "@", "back"],
                    ["123", ".", ",", "?", "!", "'","/",":",";", "return"],
-                   ["ABC", ",", "space", ".", "\""]],
-                  
-                  "modifiers": [{ "modkey":"123", "switchto":"numerical" },
-                  { "modkey":"ABC", "switchto":"lowercase" }]
+                   ["ABC", ",", "space", ".", "\""]]
+
     }
   ]
  }

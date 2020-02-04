@@ -1,13 +1,7 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 
-#
-#-------------------------------------------------
-QT       += core gui
+QT       += core gui widgets
 
 greaterThan(QT_MAJOR_VERSION, 4){
     CONFIG += c++11
-    QT += widgets
 } else {
     QMAKE_CXXFLAGS += -std=c++11
 }
@@ -19,9 +13,10 @@ greaterThan(QT_MAJOR_VERSION, 4){
 DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
-		$$PWD/keyboard.cpp \
-		$$PWD/key.cpp \
-		$$PWD/keylayout.cpp
+        $$PWD/keyboard.cpp \
+        $$PWD/key.cpp \
+        $$PWD/keylayout.cpp \
+        $$PWD/main.cpp
 
 HEADERS += \
                 $$PWD/../include/keyboard.h \

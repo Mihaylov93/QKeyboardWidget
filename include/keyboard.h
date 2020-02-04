@@ -1,7 +1,7 @@
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
 
-#include <QWidget>
+#include <QStackedWidget>
 #include <QLabel>
 #include <QVector>
 #include <QString>
@@ -10,33 +10,19 @@ enum InputMode { Undefined, Mouse, Keypad, Mixed };
 
 class KeyLayout;
 class Key;
-class Keyboard : public QWidget {
+class Keyboard : public QStackedWidget {
     Q_OBJECT
 
-    public:
-    Keyboard(KeyLayout &kl, InputMode mode = InputMode::Undefined, QWidget *parent = nullptr);
+public:
+    Keyboard(KeyLayout &kl, InputMode mode = InputMode::Undefined, QStackedWidget *parent = nullptr);
     Key *findKeyFromString(const QString &name, const int &layout);
 
-    signals:
+signals:
     void keyPressed(QString t);
     void backspacePressed();
     void returnPressed();
 
-    private:
-    void paintEvent(QPaintEvent *) override;
-    void mousePressEvent(QMouseEvent *e) override;
-    void mouseMoveEvent(QMouseEvent *e) override;
-    void mouseReleaseEvent(QMouseEvent *) override;
-
-    void keyReleaseEvent(QKeyEvent *event) override;
-
-    Key *findKey(QPoint p);
-
-    void setKeyPressed(Key *k);
-    void setKeyCurrent(int row = -1, int col = -1);
-
-    QVector<QVector<Key>> *rows;
-
+private:
     Key *currentKey;
     char currentindexkeyboard;
     bool uppercase;

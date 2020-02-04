@@ -7,44 +7,41 @@
 #include <QFile>
 #include <QJsonObject>
 #include <QJsonValue>
-//#include <initializer_list>
+#include <QGridLayout>
+
+#include <QMap>
 
 #include "key.h"
 
 class KeyLayout : public QObject {
     Q_OBJECT
-    public:
+public:
     explicit KeyLayout(const QString &json, QObject *parent = nullptr);
-    explicit KeyLayout(QFile *file, QObject *parent = nullptr);
+    explicit KeyLayout(QFile &file, QObject *parent = nullptr);
     KeyLayout(const KeyLayout &) = delete;
     ~KeyLayout() override = default;
 
     QString getLocale();
 
-    const QVector<QVector<QVector<Key>>> &getLayouts();
-    QVector<QVector<Key>> *getRows(char layout);
-    bool isModifier(const QString &keyText);
-    char getLayoutIdxFromKey(const QString &keyText);
+    // const QVector<QVector<QVector<Key>>> &getLayouts();
+    const QVector<QSharedPointer<QGridLayout>> &getLayouts();
+    QSharedPointer<QGridLayout> getLayoutAt(const int &iIdx);
 
-    private:
+private:
     enum Type { Null, String, Array };
 
-    QString mLocale;
-    int mWidth = 0;
-    int mHeight = 0;
-    QJsonObject jsonObject;
+    QString _locale;
+    QJsonObject _jsonObject;
 
     void initLayouts();
-    void initModKeys(const QJsonArray &modKeysArray);
+    void initModifierKeys(const QJsonArray &iModKeysArray);
+    QSharedPointer<QGridLayout> initGridLayout(const QJsonArray &iKeysArray);
 
     QJsonValue getQJsonValue(const QJsonObject &obj, const QString &key, Type type = Type::Null);
-    QVector<QString> layoutNames;
-    QVector<QVector<QVector<Key>>> layouts;
-    QVector<QVector<Key>> initRows(const QJsonArray &keysArray);
+    QVector<QString> _layoutNames;
 
-    QMap<QString, QString> modKeys;
-    QMap<QString, int> widthKeys;
-    QMap<QString, QString> iconKeys;
+    QMap<QString, QString> _keySpan;
+    QVector<QSharedPointer<QGridLayout>> _layouts;
 };
 
 #endif    // KEYLAYOUT_H
