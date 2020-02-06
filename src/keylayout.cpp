@@ -42,13 +42,14 @@ QString KeyLayout::getLocale()
     return _locale;
 }
 
-const QVector<QSharedPointer<QGridLayout>> &KeyLayout::getLayouts()
+const QVector<QGridLayout *> &KeyLayout::getLayouts()
 {
     return _layouts;
 }
 
-QSharedPointer<QGridLayout> KeyLayout::getLayoutAt(const int &iIdx)
+QGridLayout *KeyLayout::getLayoutAt(const int &iIdx)
 {
+    qDebug() << this->_layouts;
     return _layouts.at(iIdx);
 }
 
@@ -92,7 +93,10 @@ void KeyLayout::initLayouts()
         }
 
         // initialize rows
+        qDebug() << _layouts;
+
         _layouts.append(initGridLayout(kbdsVal.toArray()));
+        qDebug() << _layouts[0];
     }
 }
 
@@ -113,31 +117,36 @@ void KeyLayout::initModifierKeys(const QJsonArray &iModKeysArray)
     qDebug() << _keySpan;
 }
 
-QSharedPointer<QGridLayout> KeyLayout::initGridLayout(const QJsonArray &iKeysArray)
+QGridLayout *KeyLayout::initGridLayout(const QJsonArray &iKeysArray)
 {
-    int x = 0;
-    int y = 0;
-    QSharedPointer<QGridLayout> rows = QSharedPointer<QGridLayout>(new QGridLayout());
+
+    int mRow = 0;
+    QGridLayout *rows = new QGridLayout();
     QString mText;
-    // each row vector aka ROW
+    // Each row vector aka ROWS
     foreach (const QJsonValue &rowKeys, iKeysArray) {
         qDebug() << "RowKeys: " << rowKeys.toArray();
         QJsonArray mArray = rowKeys.toArray();
-        // Each item of row aka COL
+
+        int mLastColumn = 0;
+        int mLastSpan = 0;
+        // Each item of row aka COLUMNS
         for (auto it = mArray.begin(); it != mArray.end(); ++it) {
 
             mText = it->toString();
-            int span = 1;
-            if (_keySpan.contains(mText)) {
-                span = _keySpan.value(mText).toInt();
-            }
-            // When you add a widget to a layout it parents them
-            rows->addWidget(new Key(mText), x, y, 1, span);
-            x++;
-        }
+            int mKeySpan = 1;
 
-        y++;
-        x = 0;
+            if (_keySpan.contains(mText)) {
+
+                mKeySpan = _keySpan.value(mText).toInt();
+            }
+
+            mLastColumn = mLastColumn + mLastSpan;
+            // When you add a widget to a layout it parents them
+            rows->addWidget(new Key(mText), mRow, mLastColumn, 1, mKeySpan);
+            mLastSpan = mKeySpan;
+        }
+        mRow++;
     }
     return rows;
 }
