@@ -3,7 +3,6 @@
 
 #include <QMainWindow>
 #include <QFile>
-#include <keylayout.h>
 #include "keyboard.h"
 int main(int argc, char *argv[])
 {
@@ -14,10 +13,11 @@ int main(int argc, char *argv[])
 
     file.setFileName(":/en.json");
 
-    KeyLayout kl(file);
-    Keyboard k(kl, InputMode::Mouse);
+    // KeyLayout *kl = new KeyLayout(file);
+    // Keyboard k();
+    Keyboard *keyboard = new Keyboard(file, InputMode::Mouse);
     // w.setCentralWidget(k);
-    w.show();
+    // w.show();
 
     return a.exec();
 }

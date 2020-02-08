@@ -5,50 +5,43 @@
         "keys":[["q", "w", "e", "r", "t", "y", "u", "i", "o", "p","?"],
                ["a", "s", "d", "f", "g", "h", "j", "k", "l","back"],
                ["Caps", "z", "x", "c", "v", "b", "n", "m","return"],
-               ["123", ".", "space", "@",",",";"]],
-
-
-        "modifiers": [{ "keyspan":"back", "span":"2" },
-                     { "keyspan":"Caps", "span":"2" },
-                     { "keyspan":"return", "span":"2" },
-                     { "keyspan":"123", "span":"2" },
-                     { "keyspan":"space", "span":"4" }]
+               ["123", ".", "space", "@",",",";"]]
     },
-
     { "name":"uppercase",
         "keys":[["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "¿"],
-                  ["A", "S", "D", "F", "G", "H", "J", "K", "L","back"],
-                  ["Lowr", "Z", "X", "C", "V", "B", "N", "M", "return"],
-                  ["123", ".", "space", "@",",",";"]],
-
-        "modifiers": [{ "keyspan":"back", "span":"2" },
+               ["A", "S", "D", "F", "G", "H", "J", "K", "L","back"],
+               ["Lowr", "Z", "X", "C", "V", "B", "N", "M", "return"],
+               ["123", ".", "space", "@",",",";"]]
+    },
+    { "name":"numerical",
+        "keys":[["1", "2", "3", "4", "5", "6", "7", "8", "9", "0","*"],
+               ["-", "/", ":", ";", "(", ")", "€", "&", "@", "back"],
+               ["#+=", ".", ",", "?", "!", "'", "+","\\","return"],
+               ["ABC", ",", "space", ".", "\"","%"]]
+    },
+    { "name":"symbols",
+            "keys":[[ "[", "]", "{", "}", "#", "%", "^", "*", "+", "=","\""],
+                   ["_", "\\", "|", "~", "<", ">", "=","$", "@", "back"],
+                   ["123", ".", ",", "?", "!", "'","/","&", "return"],
+                   ["ABC", ",", "space", ".",":",";" ]]
+    }
+  ],
+  "modifiers": [{ "keyspan":"back", "span":"2" },
+                     { "keyspan":"Caps", "span":"2" },
                      { "keyspan":"Lowr", "span":"2" },
+                     { "keyspan":"#+=", "span":"2" },
+                     { "keyspan":"ABC", "span":"2" },
                      { "keyspan":"return", "span":"2" },
                      { "keyspan":"123", "span":"2" },
-                     { "keyspan":"space", "span":"4" }]
-    },
-
-    { "name":"numerical",
-        "keys":[["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
-                   ["-", "/", ":", ";", "(", ")", "€", "&", "@", "back"],
-                   ["#+=", ".", ",", "?", "!", "'", "+","\\","return"],
-                   ["ABC", ",", "space", ".", "\"","%"]],
-
-        "modifiers": [{ "keyspan":"ABC", "span":"2" },
-                     { "keyspan":"#+=", "span":"2" },
-                     { "keyspan":"return", "span":"2" },
-                     { "keyspan":"back", "span":"2" },
-                     { "keyspan":"space", "span":"4" }]
-
-
-    },
-
-    { "name":"symbols",
-            "keys":[[ "[", "]", "{", "}", "#", "%", "^", "*", "+", "="],
-                   ["_", "\\", "|", "~", "<", ">", "=","$", "@", "back"],
-                   ["123", ".", ",", "?", "!", "'","/",":",";", "return"],
-                   ["ABC", ",", "space", ".", "\""]]
-
-    }
-  ]
+                     { "keyspan":"space", "span":"5" },
+                     { "icon":"back", "path":":/icons/backspace.png" },
+                     { "icon":"Caps", "path":":/icons/caps.png" },
+                     { "icon":"return", "path":":/icons/enter.png" },
+                     { "icon":"Lowr", "path":":/icons/lows.png" },
+                     { "switchkey":"Caps", "layout":"uppercase" },
+                     { "switchkey":"123", "layout":"numerical" },
+                     { "switchkey":"Lowr", "layout":"lowercase" },
+                     { "switchkey":"ABC", "layout":"lowercase" },
+                     { "switchkey":"#+=", "layout":"symbols" }
+                     ]
  }

@@ -4,7 +4,7 @@
 #include <QString>
 #include <QIcon>
 #include <QPushButton>
-
+#include <QDebug>
 class Key : public QPushButton {
     Q_OBJECT
 
@@ -38,10 +38,13 @@ public:
     void setHeight(const int &iHeight);
 
 signals:
-    void keyPressed(QString key);
+    void keyPressed();
 
 public slots:
-    void on_clicked() { emit keyPressed(this->text()); }
+    void on_clicked() { emit keyPressed(); }
+
+protected:
+    void resizeEvent(QResizeEvent *iEvent) override;
 
 private:
     // int _width = 24;     // From QWidget Property
@@ -51,6 +54,8 @@ private:
     // QString _text; // From QPushButton Property
     bool _isPressed = false;
     bool _isCurrent = false;
+
+    static void computeNewFontSize(Key &ioKey);
 };
 
 #endif    // KEY_H

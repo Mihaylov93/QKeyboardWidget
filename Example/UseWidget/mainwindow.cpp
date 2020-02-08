@@ -23,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     ui->centralWidget->layout()->addWidget(tEdit);
     ui->centralWidget->layout()->addWidget(k);
+    ui->centralWidget->setLayout(kl->getLayoutAt(0));
     // ui->centralWidget->layout()->addItem(layout);
     // window->show();
     // Key *key = k->findKeyFromString("space", 0);

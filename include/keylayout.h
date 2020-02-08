@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QVector>
 
-#include <QFile>
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QGridLayout>
@@ -12,7 +11,7 @@
 #include <QMap>
 
 #include "key.h"
-
+class QFile;
 class KeyLayout : public QObject {
     Q_OBJECT
 public:
@@ -24,8 +23,12 @@ public:
     QString getLocale();
 
     // const QVector<QVector<QVector<Key>>> &getLayouts();
-    const QVector<QSharedPointer<QGridLayout>> &getLayouts();
-    QSharedPointer<QGridLayout> getLayoutAt(const int &iIdx);
+    const QVector<QGridLayout *> &getLayouts();
+    QGridLayout *getLayoutAt(const int &iIdx);
+    int getLayoutIndex(const QString &iLayoutName) const;
+    bool isSwitchKey(const QString &iKey, QString &ioValue) const;
+signals:
+    void keyPressed(QString key);
 
 private:
     enum Type { Null, String, Array };
@@ -35,13 +38,15 @@ private:
 
     void initLayouts();
     void initModifierKeys(const QJsonArray &iModKeysArray);
-    QSharedPointer<QGridLayout> initGridLayout(const QJsonArray &iKeysArray);
+    QGridLayout *initGridLayout(const QJsonArray &iKeysArray);
 
     QJsonValue getQJsonValue(const QJsonObject &obj, const QString &key, Type type = Type::Null);
     QVector<QString> _layoutNames;
 
-    QMap<QString, QString> _keySpan;
-    QVector<QSharedPointer<QGridLayout>> _layouts;
+    QMap<QString, QString> _keySpanMap;
+    QMap<QString, QString> _keyIconMap;
+    QMap<QString, QString> _keySwitchMap;
+    QVector<QGridLayout *> _layouts;
 };
 
 #endif    // KEYLAYOUT_H

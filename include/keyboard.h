@@ -2,34 +2,37 @@
 #define KEYBOARD_H
 
 #include <QStackedWidget>
-#include <QLabel>
-#include <QVector>
 #include <QString>
-
+#include <QFile>
 enum InputMode { Undefined, Mouse, Keypad, Mixed };
 
 class KeyLayout;
-class Key;
+// class Key;
 class Keyboard : public QStackedWidget {
     Q_OBJECT
 
 public:
-    Keyboard(KeyLayout &kl, InputMode mode = InputMode::Undefined, QStackedWidget *parent = nullptr);
-    Key *findKeyFromString(const QString &name, const int &layout);
+    explicit Keyboard(QFile &iJsonFile, InputMode iInputMode = InputMode::Undefined, QWidget *iParent = nullptr);
 
+    // Key *findKeyFromString(const QString &name, const int &layout);
+
+    /*protected:
+        void mouseMoveEvent(QMouseEvent *e) override;*/
 signals:
+
     void keyPressed(QString t);
     void backspacePressed();
     void returnPressed();
 
-private:
-    Key *currentKey;
-    char currentindexkeyboard;
-    bool uppercase;
+private slots:
+    void onKeyPressed(const QString &iKey);
 
-    KeyLayout *mKeylayout;
-    InputMode mMode = Undefined;
-    QPoint mCurKeyPos = QPoint(-1, -1);
+private:
+    // Key *currentKey;
+    // char currentindexkeyboard;
+
+    KeyLayout *_keylayout;
+    InputMode _inputMode = Undefined;
 };
 
 #endif    // KEYBOARD_H

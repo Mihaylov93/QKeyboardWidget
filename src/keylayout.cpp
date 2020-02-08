@@ -2,10 +2,10 @@
 
 #include <QDebug>
 #include <QJsonDocument>
-#include <QJsonObject>
+//#include <QJsonObject>
 #include <QJsonArray>
 
-#include <QSharedPointer>
+#include <QFile>
 
 KeyLayout::KeyLayout(const QString &json, QObject *parent) : QObject(parent)
 {
@@ -53,6 +53,17 @@ QGridLayout *KeyLayout::getLayoutAt(const int &iIdx)
     return _layouts.at(iIdx);
 }
 
+int KeyLayout::getLayoutIndex(const QString &iLayoutName) const
+{
+    return _layoutNames.indexOf(iLayoutName);
+}
+
+bool KeyLayout::isSwitchKey(const QString &iKey, QString &ioValue) const
+{
+    ioValue = _keySwitchMap.value(iKey);
+    return _keySwitchMap.contains(iKey);
+}
+
 QJsonValue KeyLayout::getQJsonValue(const QJsonObject &obj, const QString &key, Type type)
 {
     Q_ASSERT(!obj.isEmpty());
@@ -72,31 +83,22 @@ QJsonValue KeyLayout::getQJsonValue(const QJsonObject &obj, const QString &key, 
 
 void KeyLayout::initLayouts()
 {
-
     _locale = _jsonObject.value(QString("locale")).toString();
 
-    QJsonValue value = getQJsonValue(_jsonObject, "layouts", Type::Array);
-    QJsonArray layouts = value.toArray();
-
-    foreach (const QJsonValue &val, layouts) {
-        QJsonObject jsonObj = val.toObject();
+    const QJsonArray mLayouts = getQJsonValue(_jsonObject, "layouts", Type::Array).toArray();
+    // initialize keys modifiers
+    const QJsonValue mModifiers = getQJsonValue(_jsonObject, "modifiers", Type::Array);
+    if (mModifiers.isArray()) {
+        initModifierKeys(mModifiers.toArray());
+    }
+    // Initialize layouts
+    foreach (const QJsonValue &val, mLayouts) {
+        const QJsonObject jsonObj = val.toObject();
         _layoutNames.append(getQJsonValue(jsonObj, "name", Type::String).toString());
 
-        QJsonValue kbdsVal = getQJsonValue(jsonObj, "keys", Type::Array);
-
-        // initialize keys modifiers
-
-        qDebug() << jsonObj.value("modifiers").toArray();
-        QJsonValue mJsonValue = getQJsonValue(jsonObj, "modifiers");
-        if (mJsonValue.isArray()) {
-            initModifierKeys(mJsonValue.toArray());
-        }
-
-        // initialize rows
-        qDebug() << _layouts;
-
+        const QJsonValue kbdsVal = getQJsonValue(jsonObj, "keys", Type::Array);
+        // Initialize rows
         _layouts.append(initGridLayout(kbdsVal.toArray()));
-        qDebug() << _layouts[0];
     }
 }
 
@@ -104,24 +106,29 @@ void KeyLayout::initModifierKeys(const QJsonArray &iModKeysArray)
 {
     foreach (const QJsonValue &modType, iModKeysArray) {
         QJsonObject mJsonObj = modType.toObject();
-        /*if (jsonObj.contains("modkey")) {
-            mModKeys.insert(getQJsonValue(modType.toObject(), "modkey", Type::String).toString(),
-                            getQJsonValue(modType.toObject(), "switchto", Type::String).toString());
-        }*/
 
         if (mJsonObj.contains("keyspan")) {
-            _keySpan.insert(getQJsonValue(modType.toObject(), "keyspan", Type::String).toString(),
-                            getQJsonValue(modType.toObject(), "span", Type::String).toString());
+            _keySpanMap.insert(getQJsonValue(modType.toObject(), "keyspan", Type::String).toString(),
+                               getQJsonValue(modType.toObject(), "span", Type::String).toString());
+        }
+
+        if (mJsonObj.contains("icon")) {
+            _keyIconMap.insert(getQJsonValue(modType.toObject(), "icon", Type::String).toString(),
+                               getQJsonValue(modType.toObject(), "path", Type::String).toString());
+        }
+
+        if (mJsonObj.contains("switchkey")) {
+            _keySwitchMap.insert(getQJsonValue(modType.toObject(), "switchkey", Type::String).toString(),
+                                 getQJsonValue(modType.toObject(), "layout", Type::String).toString());
         }
     }
-    qDebug() << _keySpan;
 }
 
 QGridLayout *KeyLayout::initGridLayout(const QJsonArray &iKeysArray)
 {
 
     int mRow = 0;
-    QGridLayout *rows = new QGridLayout();
+    auto *rows = new QGridLayout();
     QString mText;
     // Each row vector aka ROWS
     foreach (const QJsonValue &rowKeys, iKeysArray) {
@@ -135,15 +142,26 @@ QGridLayout *KeyLayout::initGridLayout(const QJsonArray &iKeysArray)
 
             mText = it->toString();
             int mKeySpan = 1;
+            QString mIconPath;
+            if (_keySpanMap.contains(mText)) {
 
-            if (_keySpan.contains(mText)) {
+                mKeySpan = _keySpanMap.value(mText).toInt();
+            }
 
-                mKeySpan = _keySpan.value(mText).toInt();
+            if (_keyIconMap.contains(mText)) {
+
+                mIconPath = _keyIconMap.value(mText);
             }
 
             mLastColumn = mLastColumn + mLastSpan;
             // When you add a widget to a layout it parents them
-            rows->addWidget(new Key(mText), mRow, mLastColumn, 1, mKeySpan);
+            Key *mKey = new Key(mText, mIconPath);
+            Q_ASSERT(this->connect(mKey, &Key::keyPressed, [mKey, this]() {
+                emit this->keyPressed(mKey->objectName());
+                qDebug() << mKey->objectName();
+            }));
+
+            rows->addWidget(mKey, mRow, mLastColumn, 1, mKeySpan);
             mLastSpan = mKeySpan;
         }
         mRow++;
