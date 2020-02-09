@@ -2,30 +2,35 @@
 #include <QMouseEvent>
 #include <QDebug>
 
-#include "key.h"
 #include "keylayout.h"
 #include "keyboard.h"
 
-Keyboard::Keyboard(KeyLayout &kl, InputMode mode, QWidget *parent) : QWidget(parent)
+Keyboard::Keyboard(QFile &iJsonFile, InputMode iInputMode, QWidget *iParent) : QStackedWidget(iParent)
 {
-    currentKey = nullptr;
-    currentindexkeyboard = 0;
-    uppercase = false;
+    // currentKey = nullptr;
+    // currentindexkeyboard = 0;
 
-    rows = kl.getRows(currentindexkeyboard);
+    _keylayout = new KeyLayout(iJsonFile, this);
 
-    mKeylayout = &kl;
-
+    foreach (QGridLayout *mLayout, _keylayout->getLayouts()) {
+        QWidget *mWidget = new QWidget(this);
+        mWidget->setLayout(mLayout->layout());
+        this->addWidget(mWidget);
+    }
+    this->setCurrentIndex(0);
     setFocusPolicy(Qt::StrongFocus);
-    switch (mode) {
+
+    this->show();
+
+    switch (iInputMode) {
 
         case InputMode::Keypad:
 
-            setKeyCurrent(0, 0);
+            // setKeyCurrent(0, 0);
             Q_FALLTHROUGH();
 
         case InputMode::Mouse: {
-            mMode = mode;
+            _inputMode = iInputMode;
             break;
         }
         case InputMode::Mixed:
@@ -33,179 +38,18 @@ Keyboard::Keyboard(KeyLayout &kl, InputMode mode, QWidget *parent) : QWidget(par
         default:
             throw std::logic_error{"Undefined mode, please select a valid mode"};
     }
+
+    Keyboard::connect(_keylayout, SIGNAL(keyPressed(QString)), this, SLOT(onKeyPressed(QString)));
 }
 
-Key *Keyboard::findKeyFromString(const QString &name, const int &layout)
+void Keyboard::onKeyPressed(const QString &iKey)
 {
-    QVector<QVector<Key>> *r = mKeylayout->getRows(static_cast<char>(layout));
+    QString mLayoutName;
+    if (_keylayout->isSwitchKey(iKey, mLayoutName)) {
+        this->currentWidget()->hide();
+        int idx = _keylayout->getLayoutIndex(mLayoutName);
+        setCurrentIndex(idx);
 
-    Key *result = nullptr;
-    for (auto &rKeys : *r) {
-        for (auto &key : rKeys) {
-
-            if (QString::compare(key.getText(), name, Qt::CaseSensitive))
-                continue;
-            else {
-                result = &key;
-                break;
-            }
-        }
-    }
-    return result;
-}
-
-void Keyboard::mousePressEvent(QMouseEvent *e)
-{
-
-    if (mMode == InputMode::Mouse) {
-        QPoint pos = e->pos();
-
-        Key *key = findKey(pos);
-        if (key != nullptr) setKeyPressed(key);
-    } else {
-        e->ignore();
-    }
-}
-
-void Keyboard::mouseMoveEvent(QMouseEvent *e)
-{
-
-    if (mMode == InputMode::Mouse) {
-        QPoint pos = e->pos();
-
-        if (currentKey != nullptr && !currentKey->getRect().contains(pos)) {
-
-            currentKey->setPressed(false);
-            this->repaint();
-        }
-        setKeyPressed(findKey(pos));
-    } else {
-        e->ignore();
-    }
-}
-
-void Keyboard::mouseReleaseEvent(QMouseEvent *e)
-{
-
-    if (mMode == InputMode::Mouse) {
-        QPoint pos = e->pos();
-
-        Key *k = findKey(pos);
-        if (k == nullptr) return;    // TODO: FIX
-        k->setPressed(false);
-        if (mKeylayout->isModifier(k->getText())) {
-            currentindexkeyboard = mKeylayout->getLayoutIdxFromKey(k->getText());
-            rows = mKeylayout->getRows(currentindexkeyboard);
-            repaint();
-            return;
-        }
-        this->repaint();
-    } else {
-        e->ignore();
-    }
-}
-
-void Keyboard::keyReleaseEvent(QKeyEvent *event)
-{
-    if (mMode == InputMode::Keypad) {
-        switch (event->key()) {
-            case Qt::Key_Left:
-                qDebug() << "left released";
-                if (mCurKeyPos.y() == 0)
-                    setKeyCurrent(mCurKeyPos.x(), rows->at(mCurKeyPos.x()).size() - 1);
-                else
-                    setKeyCurrent(mCurKeyPos.x(), mCurKeyPos.y() - 1);
-                this->repaint();
-                break;
-            case Qt::Key_Right:
-                qDebug() << "Right released";
-                if (mCurKeyPos.y() == rows->at(mCurKeyPos.x()).size() - 1)
-                    setKeyCurrent(mCurKeyPos.x(), 0);
-                else
-                    setKeyCurrent(mCurKeyPos.x(), mCurKeyPos.y() + 1);
-                this->repaint();
-                break;
-            case Qt::Key_Up:
-                qDebug() << "Up released";
-                if (mCurKeyPos.x() == 0)
-                    setKeyCurrent(rows->size() - 1, mCurKeyPos.y());
-                else
-                    setKeyCurrent(mCurKeyPos.x() - 1, mCurKeyPos.y());
-                this->repaint();
-                break;
-            case Qt::Key_Down:
-                qDebug() << "Down released";
-                if (mCurKeyPos.x() == rows->size() - 1)
-                    setKeyCurrent(0, mCurKeyPos.y());
-                else
-                    setKeyCurrent(mCurKeyPos.x() + 1, mCurKeyPos.y());
-                this->repaint();
-                break;
-            default:
-                qWarning() << "Unspecified key " << event->key() << "pressed";
-        }
-    } else {
-        event->ignore();
-    }
-}
-Key *Keyboard::findKey(QPoint p)
-{
-    for (auto &keyArrayIt : *rows) {
-        for (auto it = keyArrayIt.begin(); it != keyArrayIt.end(); ++it) {
-            // qDebug() << it->getRect();
-            // qDebug() << it->getX() << " , " << it->getY();
-            ;
-            if (it->getRect().contains(p)) {
-                qDebug() << "key found";
-                return it;
-            }
-        }
-    }
-
-    return nullptr;
-}
-
-void Keyboard::setKeyPressed(Key *k)
-{
-    currentKey = k;
-
-    k->setPressed(true);
-    this->repaint();
-}
-
-void Keyboard::setKeyCurrent(int row, int col)
-{
-
-    // TODO: Manage out of bond
-    // Managed externally currently
-    if (currentKey != nullptr) currentKey->setCurrent(false);
-
-    mCurKeyPos.setX(row);
-    mCurKeyPos.setY(col);
-
-    auto rowIt = rows->begin();
-    for (int r = 0; r < row; r++) {
-        ++rowIt;
-    }
-
-    auto colIt = rowIt->begin();
-    for (int c = 0; c < col; c++) {
-        ++colIt;
-    }
-
-    currentKey = colIt;
-    currentKey->setCurrent(true);
-    this->repaint();
-}
-
-void Keyboard::paintEvent(QPaintEvent *)
-{
-    QPainter painter(this);
-
-    for (auto &it : *rows) {
-        for (auto &key : it) {
-            // qDebug() << "Keyboard::Draw Drawing key << " << key->getText() << "at: "<< key->getRect();
-            key.draw(&painter, style());
-        }
+        this->currentWidget()->show();
     }
 }
